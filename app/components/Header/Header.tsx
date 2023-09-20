@@ -19,17 +19,17 @@ const Header = () => {
         </li>
         <li>
           {" "}
-          <Link href="/">Profile</Link>
+          <Link href="/profile">Profile</Link>
         </li>
       </ul>
       <div className={scss.buttonGroup}>
-        <Button variant="contained" color="success">
+        <Button variant="contained" href="/login" color="success">
           SignIn
         </Button>
-        <Button variant="contained" color="error">
+        <Button variant="contained" href="/logout" color="error">
           SignOut
         </Button>
-        <Button variant="contained" color="info">
+        <Button variant="contained" href="/register" color="info">
           Register
         </Button>
       </div>
