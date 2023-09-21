@@ -1,19 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import Cookies from "js-cookie";
 
-type UserData = {
+type UserDataType = {
   authToken: string;
   userName: string;
   isLoggedIn: boolean;
@@ -41,16 +40,13 @@ export default function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState<UserDataType | null>(null);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log({
-      email: identifier,
-      password: password,
-    });
-  };
-  console.log(JSON.stringify({ identifier: identifier, password: password }));
+  useEffect(() => {
+    const userDataCookie = Cookies.get("userData");
+    const parsedUserData = JSON.parse(userDataCookie || "{}") as UserDataType;
+    setUserData(parsedUserData);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,8 +66,8 @@ export default function Login() {
           userName: data.user.username,
           isLoggedIn: data.user.confirmed,
         };
+        Cookies.set("userData", JSON.stringify(userData), { expires: 7 });
         setUserData(userData);
-        console.log(userData);
       } else {
         setLoginError(data.message[0].messages[0].message);
       }
@@ -81,10 +77,9 @@ export default function Login() {
   };
 
   const handleSignOut = () => {
+    Cookies.remove("userData");
     setUserData(null);
   };
-
-  console.log(identifier, password);
 
   return (
     <Container component="main" maxWidth="xs">
