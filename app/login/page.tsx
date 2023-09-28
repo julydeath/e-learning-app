@@ -10,13 +10,8 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import Cookies from "js-cookie";
-
-type UserDataType = {
-  authToken: string;
-  userName: string;
-  isLoggedIn: boolean;
-};
+import { useStore } from "../../store";
+import { useRouter } from "next/navigation";
 
 function Copyright(props: any) {
   return (
@@ -40,13 +35,14 @@ export default function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [userData, setUserData] = useState<UserDataType | null>(null);
 
-  useEffect(() => {
-    const userDataCookie = Cookies.get("userData");
-    const parsedUserData = JSON.parse(userDataCookie || "{}") as UserDataType;
-    setUserData(parsedUserData);
-  }, []);
+  const userdata = useStore((store) => store?.UserData);
+
+  const updateUserData = useStore((store) => store?.updateUserData);
+
+  const router = useRouter();
+
+  console.log("userdata", userdata);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,19 +62,14 @@ export default function Login() {
           userName: data.user.username,
           isLoggedIn: data.user.confirmed,
         };
-        Cookies.set("userData", JSON.stringify(userData), { expires: 7 });
-        setUserData(userData);
+        updateUserData(userData);
+        router.push("/");
       } else {
         setLoginError(data.message[0].messages[0].message);
       }
     } catch (error) {
       setLoginError(" An error Occurred");
     }
-  };
-
-  const handleSignOut = () => {
-    Cookies.remove("userData");
-    setUserData(null);
   };
 
   return (
@@ -98,76 +89,51 @@ export default function Login() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        {!userData?.isLoggedIn && (
-          <Box
-            component="form"
-            onSubmit={handleLogin}
-            noValidate
-            sx={{ mt: 1 }}
+
+        <Box component="form" onSubmit={handleLogin} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setIdentifier(event.target.value);
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setPassword(event.target.value);
+            }}
+          />
+          {loginError && <div style={{ color: "red" }}>{loginError}</div>}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
           >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setIdentifier(event.target.value);
-              }}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setPassword(event.target.value);
-              }}
-            />
-            {loginError && <p style={{ color: "red" }}>{loginError}</p>}
-            {/* <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item>
-                <Link href="/register" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
+            Sign In
+          </Button>
+          <Grid container>
+            <Grid item>
+              <Link href="/register" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
             </Grid>
-          </Box>
-        )}
-        {userData?.isLoggedIn && (
-          <>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={() => handleSignOut()}
-            >
-              Sign out
-            </Button>
-            <p>Logged in user : {userData.userName}</p>
-            <p>Is user logged in : {userData.isLoggedIn ? "Yes" : "No"}</p>
-          </>
-        )}
+          </Grid>
+        </Box>
       </Box>
       <Copyright sx={{ mt: 8, mb: 4 }} />
     </Container>
