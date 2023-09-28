@@ -65,12 +65,6 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "lesson": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::lesson.lesson",
-      "mappedBy": "user"
-    },
     "courseProgress": {
       "type": "json"
     }

@@ -24,11 +24,10 @@
     "duration": {
       "type": "string"
     },
-    "user": {
+    "users": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "lesson"
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user"
     }
   }
 }
